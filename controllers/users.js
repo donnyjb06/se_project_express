@@ -35,7 +35,7 @@ const addNewUser = async (req, res) => {
     }
 
     const user = await User.create({ name, avatar });
-    console.log(user);
+    res.status(201).json(user)
   } catch (error) {
     sendErrorCode(req, res, error)
   }
