@@ -9,7 +9,7 @@
     "lint": "npx eslint"
   },
   "keywords": [],
-  "author": "",
+  "author": "Donovan Jabbar",
   "license": "ISC",
   "dependencies": {
     "express": "^4.21.2",
