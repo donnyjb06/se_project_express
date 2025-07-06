@@ -47,7 +47,69 @@ const deleteItem = async (req, res) => {
     }
 
     const deletedItem = await Item.findByIdAndDelete(itemId).orFail();
-    res.status(200).json({message: "Deleted successfully", item: deletedItem})
+    res
+      .status(200)
+      .json({ message: "Deleted successfully", item: deletedItem });
+  } catch (error) {
+    sendErrorCode(req, res, error);
+  }
+};
+
+const likeItem = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    if (!userId) {
+      res
+        .status(ERROR_CODES.BAD_REQUEST)
+        .json({ message: "Missing _id property" });
+      return;
+    }
+
+    const { itemId } = req.params;
+    if (!itemId) {
+      res
+        .status(ERROR_CODES.BAD_REQUEST)
+        .json({ message: "Missing required parameter: itemId" });
+      return;
+    }
+
+    const updatedItem = await Item.findByIdAndUpdate(
+      itemId,
+      { $addToSet: { likes: userId } },
+      { new: true }
+    ).orFail();
+    await(await updatedItem.populate("owner")).populate("likes")
+    res.status(200).json(updatedItem);
+  } catch (error) {
+    sendErrorCode(req, res, error);
+  }
+};
+
+const unlikeItem = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    if (!userId) {
+      res
+        .status(ERROR_CODES.BAD_REQUEST)
+        .json({ message: "Missing _id property" });
+      return;
+    }
+
+    const { itemId } = req.params;
+    if (!itemId) {
+      res
+        .status(ERROR_CODES.BAD_REQUEST)
+        .json({ message: "Missing required parameter: itemId" });
+      return;
+    }
+
+    const updatedItem = await Item.findByIdAndUpdate(
+      itemId,
+      { $pull: { likes: userId } },
+      { new: true }
+    ).orFail();
+    await (await updatedItem.populate("owner")).populate("likes");
+    res.status(200).json(updatedItem);
   } catch (error) {
     sendErrorCode(req, res, error);
   }
@@ -57,4 +119,6 @@ module.exports = {
   getAllItems,
   addNewItem,
   deleteItem,
+  likeItem,
+  unlikeItem,
 };
