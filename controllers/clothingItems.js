@@ -1,4 +1,4 @@
-const { ERROR_CODES, sendErrorCode } = require("../utils/errors");
+const { STATUS_CODES, sendErrorCode } = require("../utils/errors");
 const Item = require("../models/clothingItem");
 
 const getAllItems = async (req, res) => {
@@ -15,7 +15,7 @@ const addNewItem = async (req, res) => {
     const userId = req.user._id;
     if (!userId) {
       res
-        .status(ERROR_CODES.BAD_REQUEST)
+        .status(STATUS_CODES.BAD_REQUEST)
         .json({ message: "Missing _id property" });
       return;
     }
@@ -23,7 +23,7 @@ const addNewItem = async (req, res) => {
     const { name, weather, imageUrl } = req.body;
     if (!name || !weather || !imageUrl) {
       res
-        .status(ERROR_CODES.BAD_REQUEST)
+        .status(STATUS_CODES.BAD_REQUEST)
         .json({ message: "Missing required field/s" });
       return;
     }
@@ -41,7 +41,7 @@ const deleteItem = async (req, res) => {
     const { itemId } = req.params;
     if (!itemId) {
       res
-        .status(ERROR_CODES.BAD_REQUEST)
+        .status(STATUS_CODES.BAD_REQUEST)
         .json({ message: "Missing required parameter: itemId" });
       return;
     }
@@ -60,7 +60,7 @@ const likeItem = async (req, res) => {
     const userId = req.user._id;
     if (!userId) {
       res
-        .status(ERROR_CODES.BAD_REQUEST)
+        .status(STATUS_CODES.BAD_REQUEST)
         .json({ message: "Missing _id property" });
       return;
     }
@@ -68,7 +68,7 @@ const likeItem = async (req, res) => {
     const { itemId } = req.params;
     if (!itemId) {
       res
-        .status(ERROR_CODES.BAD_REQUEST)
+        .status(STATUS_CODES.BAD_REQUEST)
         .json({ message: "Missing required parameter: itemId" });
       return;
     }
@@ -78,7 +78,7 @@ const likeItem = async (req, res) => {
       { $addToSet: { likes: userId } },
       { new: true }
     ).orFail();
-    await(await updatedItem.populate("owner")).populate("likes")
+    await (await updatedItem.populate("owner")).populate("likes");
     res.status(200).json(updatedItem);
   } catch (error) {
     sendErrorCode(req, res, error);
@@ -90,7 +90,7 @@ const unlikeItem = async (req, res) => {
     const userId = req.user._id;
     if (!userId) {
       res
-        .status(ERROR_CODES.BAD_REQUEST)
+        .status(STATUS_CODES.BAD_REQUEST)
         .json({ message: "Missing _id property" });
       return;
     }
@@ -98,7 +98,7 @@ const unlikeItem = async (req, res) => {
     const { itemId } = req.params;
     if (!itemId) {
       res
-        .status(ERROR_CODES.BAD_REQUEST)
+        .status(STATUS_CODES.BAD_REQUEST)
         .json({ message: "Missing required parameter: itemId" });
       return;
     }
