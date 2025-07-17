@@ -2,17 +2,18 @@ const express = require("express");
 const mongoose = require("mongoose");
 const userRouter = require("./routes/users");
 const itemRouter = require("./routes/clothingItems");
+const authRouter = require("./routes/index");
 const { STATUS_CODES } = require("./utils/errors");
-const cors = require("cors")
+const cors = require("cors");
 
 const { PORT = 3001 } = process.env;
 
 const app = express();
-app.use(cors())
+app.use(cors());
 app.use(express.json());
 
 app.use("/users", userRouter);
-
+app.use("/", authRouter);
 app.use("/items", itemRouter);
 app.use((req, res) => {
   res
