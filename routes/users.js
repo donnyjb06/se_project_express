@@ -10,7 +10,7 @@ router.route("/signup")
 
 router.route("/me")
   .all(authenticateUser)
-  .get(getUser)
+  .get(getCurrentUser)
   .patch(updateUser)
 
 module.exports = router

@@ -7,7 +7,7 @@ const STATUS_CODES = {
   CONFLICT_ERROR: 409,
 };
 
-const sendErrorCode = (res, error) => {
+const sendErrorCode = (req, res, error) => {
   if (error.code && error.code === 11000) {
     res.status(STATUS_CODES.CONFLICT_ERROR).json({message: `Email address is already being used: ${error.message}`})
     return

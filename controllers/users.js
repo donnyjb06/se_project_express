@@ -1,7 +1,7 @@
-const User = require("../models/user");
-const { sendErrorCode, STATUS_CODES } = require("../utils/errors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const User = require("../models/user");
+const { sendErrorCode, STATUS_CODES } = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
 
 const getCurrentUser = async (req, res) => {
@@ -16,7 +16,7 @@ const getCurrentUser = async (req, res) => {
     const user = await User.findById(_id).orFail();
     res.status(200).json({ user });
   } catch (error) {
-    sendErrorCode(res, error);
+    sendErrorCode(req, res, error);
   }
 };
 
@@ -39,7 +39,7 @@ const addNewUser = async (req, res) => {
       _id: user.id,
     });
   } catch (error) {
-    sendErrorCode(res, error);
+    sendErrorCode(req, res, error);
   }
 };
 
@@ -47,9 +47,10 @@ const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      return res
+      res
         .status(STATUS_CODES.UNAUTHORIZED)
         .json({ message: "Missing email or password" });
+      return;
     }
 
     const user = await User.findUsersByCredentials(email, password);
@@ -59,7 +60,7 @@ const loginUser = async (req, res) => {
       .status(200)
       .json({ message: "User logged in", token, user: { _id: user.id } });
   } catch (error) {
-    sendErrorCode(res, error);
+    sendErrorCode(req, res, error);
   }
 };
 
@@ -73,16 +74,19 @@ const updateUser = async (req, res) => {
       return;
     }
 
-    const updatedUser = User.findByIdAndUpdate(_id, req.body, {strict: true, runValidators: true})
-    res.status(200).json(updatedUser)
+    const updatedUser = User.findByIdAndUpdate(_id, req.body, {
+      strict: true,
+      runValidators: true,
+    });
+    res.status(200).json(updatedUser);
   } catch (error) {
-    sendErrorCode(res, error)
+    sendErrorCode(req, res, error);
   }
 };
 
 module.exports = {
-  getAllUsers,
   getCurrentUser,
   addNewUser,
   updateUser,
+  loginUser,
 };
