@@ -1,7 +1,7 @@
 const STATUS_CODES = {
   BAD_REQUEST: 400,
   UNAUTHORIZED: 401,
-  FORBIDDED: 403,
+  FORBIDDEN: 403,
   NOT_FOUND: 404,
   SERVER_ERROR: 500,
   CONFLICT_ERROR: 409,
@@ -32,6 +32,7 @@ const sendErrorCode = (res, error) => {
     case 'UnauthorizedError':
       res.status(STATUS_CODES.UNAUTHORIZED)
       .json({message: `Authorization failed: ${error.message}`})
+      break
     default:
       res
         .status(STATUS_CODES.SERVER_ERROR)

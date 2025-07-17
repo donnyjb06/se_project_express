@@ -11,13 +11,6 @@ app.use(express.json());
 
 app.use("/users", userRouter);
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: "686acf37a6f4f0b72d2a50e4",
-  };
-  next();
-});
-
 app.use("/items", itemRouter);
 app.use((req, res) => {
   res

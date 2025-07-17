@@ -4,25 +4,16 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken")
 const { JWT_SECRET } = require("../utils/config")
 
-const getAllUsers = async (req, res) => {
-  try {
-    const users = await User.find({});
-    res.status(200).json({ users });
-  } catch (error) {
-    sendErrorCode(res, error);
-  }
-};
-
 const getCurrentUser = async (req, res) => {
   try {
-    const { userId } = req.params;
-    if (!userId) {
+    const { _id } = req.user;
+    if (!_id) {
       res
         .status(STATUS_CODES.BAD_REQUEST)
         .json({ message: "Missing required parameter: userId" });
       return;
     }
-    const user = await User.findById(userId).orFail();
+    const user = await User.findById(_id).orFail();
     res.status(200).json({ user });
   } catch (error) {
     sendErrorCode(res, error);
