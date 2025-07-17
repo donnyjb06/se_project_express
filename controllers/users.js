@@ -13,7 +13,7 @@ const getAllUsers = async (req, res) => {
   }
 };
 
-const getUser = async (req, res) => {
+const getCurrentUser = async (req, res) => {
   try {
     const { userId } = req.params;
     if (!userId) {
@@ -73,6 +73,6 @@ const loginUser = async (req, res) => {
 
 module.exports = {
   getAllUsers,
-  getUser,
+  getCurrentUser,
   addNewUser,
 };
