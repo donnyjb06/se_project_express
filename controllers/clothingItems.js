@@ -47,7 +47,7 @@ const deleteItem = async (req, res) => {
     }
 
     const itemToDelete = await Item.findById(itemId).orFail();
-    if (!itemToDelete.owner === req.user._id) {
+    if (itemToDelete.owner.toString() !== req.user._id) {
       res.status(STATUS_CODES.FORBIDDEN)
       .json({message: "User does not own clothing item"})
       return
