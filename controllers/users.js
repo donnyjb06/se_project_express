@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const { sendErrorCode, STATUS_CODES } = require("../utils/errors");
+const bcrypt = require("bcryptjs");
 
 const getAllUsers = async (req, res) => {
   try {
@@ -28,7 +29,7 @@ const getUser = async (req, res) => {
 
 const addNewUser = async (req, res) => {
   try {
-    const { name, avatar } = req.body;
+    const { name, avatar, email, password } = req.body;
     if (!name || !avatar) {
       res
         .status(STATUS_CODES.BAD_REQUEST)
@@ -36,8 +37,16 @@ const addNewUser = async (req, res) => {
       return;
     }
 
-    const user = await User.create({ name, avatar });
-    res.status(201).json(user);
+    const hash = await bcrypt.hash(password, 10);
+    const user = await User.create({ name, avatar, email, hash });
+    res
+      .status(201)
+      .json({
+        name: user.name,
+        avatar: user.avatar,
+        email: user.email,
+        _id: user.id,
+      });
   } catch (error) {
     sendErrorCode(req, res, error);
   }
