@@ -48,12 +48,12 @@ const loginUser = async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
       res
-        .status(STATUS_CODES.UNAUTHORIZED)
+        .status(STATUS_CODES.BAD_REQUEST)
         .json({ message: "Missing email or password" });
       return;
     }
 
-    const user = await User.findUsersByCredentials(email, password);
+    const user = await User.findUserByCredentials(email, password);
 
     const token = jwt.sign({ _id: user.id }, JWT_SECRET, { expiresIn: "7d" });
     res
