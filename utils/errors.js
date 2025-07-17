@@ -7,7 +7,7 @@ const STATUS_CODES = {
   CONFLICT_ERROR: 409,
 };
 
-const sendErrorCode = (req, res, error) => {
+const sendErrorCode = (res, error) => {
   if (error.code && error.code === 11000) {
     res.status(STATUS_CODES.CONFLICT_ERROR).json({message: `Email address is already being used: ${error.message}`})
     return
@@ -29,6 +29,9 @@ const sendErrorCode = (req, res, error) => {
         message: `User with id of ${req.params.userId} was not found: ${error.message}`,
       });
       break;
+    case 'UnauthorizedError':
+      res.status(STATUS_CODES.UNAUTHORIZED)
+      .json({message: `Authorization failed: ${error.message}`})
     default:
       res
         .status(STATUS_CODES.SERVER_ERROR)

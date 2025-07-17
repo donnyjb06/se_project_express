@@ -21,12 +21,30 @@ const userSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator: (v) => validator.isEmail(v),
-      message: "You must enter a valid email address"
-    }
+      message: "You must enter a valid email address",
+    },
   },
   password: {
     type: String,
     required: true,
+  },
+  statics: {
+    async findUserByCredentials(email, password) {
+      const user = await this.findOne({ email })
+        .select("+password")
+        .orFail(() => {
+          const error = new Error("Invalid email address")
+          error.name = "UnauthorizedError";
+          throw error
+        });
+
+      const isMatched = await bcrypt.compare(password, user.password);
+      if (isMatched) return user;
+
+      const error = new Error("Invalid password");
+      error.name = "UnauthorizedError";
+      throw error;
+    },
   },
 });
 
