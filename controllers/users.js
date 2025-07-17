@@ -74,9 +74,10 @@ const updateUser = async (req, res) => {
       return;
     }
 
-    const updatedUser = User.findByIdAndUpdate(_id, req.body, {
+    const updatedUser = await User.findByIdAndUpdate(_id, req.body, {
       strict: true,
       runValidators: true,
+      new: true
     });
     res.status(200).json(updatedUser);
   } catch (error) {
