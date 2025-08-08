@@ -28,7 +28,7 @@ const addNewItem = async (req, res) => {
       return;
     }
 
-    const item = await Item.create({ name, weather, imageUrl, owner: userId });
+    const item = await Item.create({ name, weather, imageUrl, owner: userId, });
     await item.populate("owner");
     res.status(201).json(item);
   } catch (error) {

@@ -14,7 +14,14 @@ const getCurrentUser = async (req, res) => {
       return;
     }
     const user = await User.findById(_id).orFail();
-    res.status(200).json({ user });
+    res
+      .status(200)
+      .json({
+        name: user.name,
+        email: user.email,
+        id: user.id,
+        avatar: user.avatar,
+      });
   } catch (error) {
     sendErrorCode(req, res, error);
   }
@@ -56,9 +63,7 @@ const loginUser = async (req, res) => {
     const user = await User.findUserByCredentials(email, password);
 
     const token = jwt.sign({ _id: user.id }, JWT_SECRET, { expiresIn: "7d" });
-    res
-      .status(200)
-      .json({token});
+    res.status(200).json({ token });
   } catch (error) {
     sendErrorCode(req, res, error);
   }
@@ -77,7 +82,7 @@ const updateUser = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(_id, req.body, {
       strict: true,
       runValidators: true,
-      new: true
+      new: true,
     });
     res.status(200).json(updatedUser);
   } catch (error) {

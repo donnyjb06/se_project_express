@@ -6,10 +6,11 @@ const extractToken = (header) => header.split("Bearer ")[1].trim();
 
 const authenticateUser = (req, res, next) => {
   const { authorization } = req.headers;
+  console.log(authorization);
   if (!authorization || !authorization.startsWith("Bearer")) {
     const error = new Error("Missing or invalid header");
     error.name = "UnauthorizedError";
-    sendErrorCode(res, error);
+    return sendErrorCode(req, res, error);
   }
 
   const extractedToken = extractToken(authorization);
@@ -20,7 +21,7 @@ const authenticateUser = (req, res, next) => {
     next();
   } catch (error) {
     error.name = "UnauthorizedError";
-    sendErrorCode(res, error);
+    sendErrorCode(req, res, error);
   }
 };
 
