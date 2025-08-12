@@ -3,7 +3,7 @@ const Item = require("../models/clothingItem");
 
 const getAllItems = async (req, res) => {
   try {
-    const items = await Item.find({}).populate("owner").populate("likes");
+    const items = await Item.find({}).populate("owner");
     res.status(200).json({ items });
   } catch (error) {
     sendErrorCode(req, res, error);
@@ -20,15 +20,15 @@ const addNewItem = async (req, res) => {
       return;
     }
 
-    const { name, weather, imageUrl } = req.body;
-    if (!name || !weather || !imageUrl) {
+    const { name, weather, link } = req.body;
+    if (!name || !weather || !link) {
       res
         .status(STATUS_CODES.BAD_REQUEST)
         .json({ message: "Missing required field/s" });
       return;
     }
 
-    const item = await Item.create({ name, weather, imageUrl, owner: userId, });
+    const item = await Item.create({ name, weather, link, owner: userId });
     await item.populate("owner");
     res.status(201).json(item);
   } catch (error) {
@@ -48,9 +48,10 @@ const deleteItem = async (req, res) => {
 
     const itemToDelete = await Item.findById(itemId).orFail();
     if (itemToDelete.owner.toString() !== req.user._id) {
-      res.status(STATUS_CODES.FORBIDDEN)
-      .json({message: "User does not own clothing item"})
-      return
+      res
+        .status(STATUS_CODES.FORBIDDEN)
+        .json({ message: "User does not own clothing item" });
+      return;
     }
 
     const deletedItem = await Item.findByIdAndDelete(itemId).orFail();
@@ -115,7 +116,7 @@ const unlikeItem = async (req, res) => {
       { $pull: { likes: userId } },
       { new: true }
     ).orFail();
-    await (await updatedItem.populate("owner")).populate("likes");
+    await updatedItem.populate("owner");
     res.status(200).json(updatedItem);
   } catch (error) {
     sendErrorCode(req, res, error);
