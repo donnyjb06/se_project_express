@@ -4,7 +4,7 @@ const Item = require("../models/clothingItem");
 const getAllItems = async (req, res) => {
   try {
     const items = await Item.find({}).populate("owner");
-    res.status(200).json({ items });
+    res.status(200).json(items);
   } catch (error) {
     sendErrorCode(req, res, error);
   }
