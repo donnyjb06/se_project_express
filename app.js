@@ -5,6 +5,7 @@ const userRouter = require("./routes/users");
 const itemRouter = require("./routes/clothingItems");
 const authRouter = require("./routes/index");
 const { STATUS_CODES } = require("./utils/errors");
+const errorHandler = require("./middlewares/error")
 require("dotenv").config();
 
 const { PORT = 3001 } = process.env;
@@ -21,6 +22,7 @@ app.use((req, res) => {
     .status(STATUS_CODES.NOT_FOUND)
     .json({ message: "Requested resource not found" });
 });
+app.use(errorHandler)
 
 (async () => {
   try {
