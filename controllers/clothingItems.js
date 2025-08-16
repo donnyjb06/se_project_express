@@ -86,7 +86,7 @@ const likeItem = async (req, res) => {
       { $addToSet: { likes: userId } },
       { new: true }
     ).orFail();
-    await (await updatedItem.populate("owner")).populate("likes");
+    await updatedItem.populate("owner");
     res.status(200).json(updatedItem);
   } catch (error) {
     sendErrorCode(req, res, error);
