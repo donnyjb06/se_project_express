@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
-const { sendErrorCode } = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
+const {UnauthorizedError} = require("../utils/errors/UnauthorizedError")
 
 const extractToken = (header) => header.split("Bearer ")[1].trim();
 
@@ -9,7 +9,8 @@ const authenticateUser = (req, res, next) => {
   if (!authorization || !authorization.startsWith("Bearer")) {
     const error = new Error("Missing or invalid header");
     error.name = "UnauthorizedError";
-    return sendErrorCode(req, res, error);
+    next(new UnauthorizedError("Invalid token"))
+    return
   }
 
   const extractedToken = extractToken(authorization);
@@ -20,7 +21,7 @@ const authenticateUser = (req, res, next) => {
     next();
   } catch (error) {
     error.name = "UnauthorizedError";
-    sendErrorCode(req, res, error);
+    next(new UnauthorizedError("An error has occured when attempting to validate your token"))
   }
 };
 

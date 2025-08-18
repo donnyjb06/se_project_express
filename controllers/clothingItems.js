@@ -1,30 +1,27 @@
-const { STATUS_CODES, sendErrorCode } = require("../utils/errors");
 const Item = require("../models/clothingItem");
+const { BadRequestError } = require("../utils/errors/BadRequestError");
+const { NotFoundError } = require("../utils/errors/NotFoundError");
 
-const getAllItems = async (req, res) => {
+const getAllItems = async (req, res, next) => {
   try {
     const items = await Item.find({}).populate("owner");
     res.status(200).json(items);
   } catch (error) {
-    sendErrorCode(req, res, error);
+    next(error);
   }
 };
 
-const addNewItem = async (req, res) => {
+const addNewItem = async (req, res, next) => {
   try {
     const userId = req.user._id;
     if (!userId) {
-      res
-        .status(STATUS_CODES.BAD_REQUEST)
-        .json({ message: "Missing _id property" });
+      next(new BadRequestError("Missing user ID"));
       return;
     }
 
     const { name, weather, link } = req.body;
     if (!name || !weather || !link) {
-      res
-        .status(STATUS_CODES.BAD_REQUEST)
-        .json({ message: "Missing required field/s" });
+      next(new BadRequestError("Missing required field/s"));
       return;
     }
 
@@ -32,25 +29,29 @@ const addNewItem = async (req, res) => {
     await item.populate("owner");
     res.status(201).json(item);
   } catch (error) {
-    sendErrorCode(req, res, error);
+    if (error.name === "CastError") {
+      next(new BadRequestError("Invalid value for owner ID"));
+      return;
+    } else if (error.name === "ValidationError") {
+      next(new BadRequestError("Invalid fields: name, weather, or link"));
+      return;
+    }
+
+    next(error);
   }
 };
 
-const deleteItem = async (req, res) => {
+const deleteItem = async (req, res, next) => {
   try {
     const { itemId } = req.params;
     if (!itemId) {
-      res
-        .status(STATUS_CODES.BAD_REQUEST)
-        .json({ message: "Missing required parameter: itemId" });
+      next(new BadRequestError("Missing item ID"));
       return;
     }
 
     const itemToDelete = await Item.findById(itemId).orFail();
     if (itemToDelete.owner.toString() !== req.user._id) {
-      res
-        .status(STATUS_CODES.FORBIDDEN)
-        .json({ message: "User does not own clothing item" });
+      next(new BadRequestError("Current user does not own clothing item"));
       return;
     }
 
@@ -59,25 +60,29 @@ const deleteItem = async (req, res) => {
       .status(200)
       .json({ message: "Deleted successfully", item: deletedItem });
   } catch (error) {
-    sendErrorCode(req, res, error);
+    if (error.name === "CastError") {
+      next(new BadRequestError("Invalid value for item ID"));
+      return;
+    } else if (error.name === "DocumentNotFoundError") {
+      next(new NotFoundError("Item could not be found"));
+      return;
+    }
+
+    next(error);
   }
 };
 
-const likeItem = async (req, res) => {
+const likeItem = async (req, res, next) => {
   try {
     const userId = req.user._id;
     if (!userId) {
-      res
-        .status(STATUS_CODES.BAD_REQUEST)
-        .json({ message: "Missing _id property" });
+      next(new BadRequestError("Missing user ID"));
       return;
     }
 
     const { itemId } = req.params;
     if (!itemId) {
-      res
-        .status(STATUS_CODES.BAD_REQUEST)
-        .json({ message: "Missing required parameter: itemId" });
+      next(new BadRequestError("Missing item ID"));
       return;
     }
 
@@ -89,25 +94,29 @@ const likeItem = async (req, res) => {
     await updatedItem.populate("owner");
     res.status(200).json(updatedItem);
   } catch (error) {
-    sendErrorCode(req, res, error);
+    if (error.name === "CastError") {
+      next(new BadRequestError("Invalid value for item ID"));
+      return;
+    } else if (error.name === "DocumentNotFoundError") {
+      next(new NotFoundError("Item could not be found"));
+      return;
+    }
+
+    next(error);
   }
 };
 
-const unlikeItem = async (req, res) => {
+const unlikeItem = async (req, res, next) => {
   try {
     const userId = req.user._id;
     if (!userId) {
-      res
-        .status(STATUS_CODES.BAD_REQUEST)
-        .json({ message: "Missing _id property" });
+      next(new BadRequestError("Missing user ID"));
       return;
     }
 
     const { itemId } = req.params;
     if (!itemId) {
-      res
-        .status(STATUS_CODES.BAD_REQUEST)
-        .json({ message: "Missing required parameter: itemId" });
+      next(new BadRequestError("Missing item ID"));
       return;
     }
 
@@ -119,7 +128,15 @@ const unlikeItem = async (req, res) => {
     await updatedItem.populate("owner");
     res.status(200).json(updatedItem);
   } catch (error) {
-    sendErrorCode(req, res, error);
+    if (error.name === "CastError") {
+      next(new BadRequestError("Invalid value for item ID"));
+      return;
+    } else if (error.name === "DocumentNotFoundError") {
+      next(new NotFoundError(`Item could not be found`));
+      return;
+    }
+
+    next(error);
   }
 };
 

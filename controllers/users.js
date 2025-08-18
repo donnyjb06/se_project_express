@@ -1,39 +1,44 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-const { sendErrorCode, STATUS_CODES } = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
+const { BadRequestError } = require("../utils/errors/BadRequestError");
+const { UnauthorizedError } = require("../utils/errors/UnauthorizedError");
+const { NotFoundError } = require("../utils/errors/NotFoundError");
+const { ConflictError } = require("../utils/errors/ConflictError");
 
-const getCurrentUser = async (req, res) => {
+const getCurrentUser = async (req, res, next) => {
   try {
     const { _id } = req.user;
     if (!_id) {
-      res
-        .status(STATUS_CODES.BAD_REQUEST)
-        .json({ message: "Missing required parameter: userId" });
+      next(new BadRequestError("Missing user ID"));
       return;
     }
     const user = await User.findById(_id).orFail();
-    res
-      .status(200)
-      .json({
-        name: user.name,
-        email: user.email,
-        _id: user.id,
-        avatar: user.avatar,
-      });
+    res.status(200).json({
+      name: user.name,
+      email: user.email,
+      _id: user.id,
+      avatar: user.avatar,
+    });
   } catch (error) {
-    sendErrorCode(req, res, error);
+    if (error.name === "DocumentNotFoundError") {
+      next(new NotFoundError(`User could not be found`));
+      return;
+    } else if (error.name === "CastError") {
+      next(new BadRequestError("Invalid value for user ID"));
+      return;
+    }
+
+    next(error);
   }
 };
 
-const addNewUser = async (req, res) => {
+const addNewUser = async (req, res, next) => {
   try {
     const { name, avatar, email, password } = req.body;
     if (!name || !avatar) {
-      res
-        .status(STATUS_CODES.BAD_REQUEST)
-        .json({ message: "Missing required field/s" });
+      next(new BadRequestError("Missing required field/s"));
       return;
     }
 
@@ -46,17 +51,23 @@ const addNewUser = async (req, res) => {
       _id: user.id,
     });
   } catch (error) {
-    sendErrorCode(req, res, error);
+    if (error.name === "ValidationError") {
+      next(new BadRequestError("Invalid field/s: name, avatar, or email"));
+      return;
+    } else if (error.name === "MongoServerError") {
+      next(new ConflictError("Duplicate email"));
+      return;
+    }
+
+    next(error);
   }
 };
 
-const loginUser = async (req, res) => {
+const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      res
-        .status(STATUS_CODES.BAD_REQUEST)
-        .json({ message: "Missing email or password" });
+      next(new BadRequestError("Missing user ID"));
       return;
     }
 
@@ -65,17 +76,20 @@ const loginUser = async (req, res) => {
     const token = jwt.sign({ _id: user.id }, JWT_SECRET, { expiresIn: "7d" });
     res.status(200).json({ token });
   } catch (error) {
-    sendErrorCode(req, res, error);
+    if (error.name === "UnauthorizedError") {
+      next(new UnauthorizedError(error.message));
+      return;
+    }
+
+    next(error);
   }
 };
 
-const updateUser = async (req, res) => {
+const updateUser = async (req, res, next) => {
   try {
     const { _id } = req.user;
     if (!_id || !req.body) {
-      res
-        .status(STATUS_CODES.BAD_REQUEST)
-        .json({ message: "Missing user ID or missing document fields" });
+      next(new BadRequestError("Missing user ID"));
       return;
     }
 
@@ -83,10 +97,18 @@ const updateUser = async (req, res) => {
       strict: true,
       runValidators: true,
       new: true,
-    });
+    }).orFail();
     res.status(200).json(updatedUser);
   } catch (error) {
-    sendErrorCode(req, res, error);
+    if (error.name === "CastError") {
+      next(new BadRequestError("Invalid value for user ID"));
+      return;
+    } else if (error.name === "DocumentNotFoundError") {
+      next(new NotFoundError("User could not be found"));
+      return;
+    }
+
+    next(error);
   }
 };
 
