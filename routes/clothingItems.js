@@ -7,11 +7,18 @@ const {
   unlikeItem,
 } = require("../controllers/clothingItems");
 const { authenticateUser } = require("../middlewares/auth");
+const {
+  validateItemId,
+  validateItemCreation,
+  validateUserId,
+} = require("../middlewares/validation");
 
-router.route("/").get(getAllItems).post(authenticateUser, addNewItem);
+router
+  .route("/")
+  .get(getAllItems)
+  .post(authenticateUser, validateUserId, validateItemCreation, addNewItem);
 
-
-router.use(authenticateUser)
+router.use(authenticateUser, validateUserId, validateItemId);
 router.route("/:itemId").delete(deleteItem);
 
 router.route("/:itemId/likes").put(likeItem).delete(unlikeItem);
