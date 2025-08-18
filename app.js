@@ -7,23 +7,24 @@ const authRouter = require("./routes/index");
 const { errorHandler } = require("./middlewares/error");
 const { NotFoundError } = require("./utils/errors/NotFoundError");
 const { errors } = require("celebrate");
+const { requestLogger, errorLogger } = require("./middlewares/logger");
 require("dotenv").config();
 
 const { PORT = 3001 } = process.env;
-
-console.log("Type:", typeof errorHandler);
-console.log("Param count:", errorHandler?.length);
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.use(requestLogger);
 app.use("/users", userRouter);
 app.use("/", authRouter);
 app.use("/items", itemRouter);
 app.use((req, res, next) => {
   next(new NotFoundError("Requested resource not found"));
 });
+
+app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
 
