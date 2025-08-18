@@ -1,6 +1,5 @@
-const errorHandler = (error, req, res, next) => {
-  console.error(error)
-  const {statusCode, message} = error;
+const errorHandler = (err, req, res, next) => {
+  const {statusCode, message} = err;
 
   res
     .status(statusCode)
@@ -11,4 +10,6 @@ const errorHandler = (error, req, res, next) => {
     })
 }
 
-module.exports = errorHandler = errorHandler
+module.exports = {
+  errorHandler
+}
