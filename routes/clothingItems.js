@@ -18,7 +18,8 @@ router
   .get(getAllItems)
   .post(authenticateUser, validateUserId, validateItemCreation, addNewItem);
 
-router.use(authenticateUser, validateUserId, validateItemId);
+router.use(authenticateUser, validateUserId);
+router.use("/:itemId", validateItemId)
 router.route("/:itemId").delete(deleteItem);
 
 router.route("/:itemId/likes").put(likeItem).delete(unlikeItem);
