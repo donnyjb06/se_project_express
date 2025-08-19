@@ -18,6 +18,11 @@ app.use(express.json());
 
 app.use(requestLogger);
 app.use("/users", userRouter);
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error("Server will crash now")
+  }, 0)
+})
 app.use("/", authRouter);
 app.use("/items", itemRouter);
 app.use((req, res, next) => {
