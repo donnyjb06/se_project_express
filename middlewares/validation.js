@@ -149,8 +149,6 @@ const reqUserSchema = Joi.object()
   .unknown(true);
 
 const validateUserId = (req, res, next) => {
-  const { _id } = req.user;
-
   const { error, value } = reqUserSchema.validate(req.user || {}, {
     abortEarly: false,
   });
@@ -158,7 +156,7 @@ const validateUserId = (req, res, next) => {
   if (error) return next(new BadRequestError("Invalid user ID"));
 
   req.user = value;
-  next();
+  return next();
 };
 
 const validateItemId = celebrate({
