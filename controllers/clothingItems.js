@@ -19,13 +19,13 @@ const addNewItem = async (req, res, next) => {
       return;
     }
 
-    const { name, weather, link } = req.body;
-    if (!name || !weather || !link) {
+    const { name, weather, imageUrl } = req.body;
+    if (!name || !weather || !imageUrl) {
       next(new BadRequestError("Missing required field/s"));
       return;
     }
 
-    const item = await Item.create({ name, weather, link, owner: userId });
+    const item = await Item.create({ name, weather, imageUrl, owner: userId });
     await item.populate("owner");
     res.status(201).json(item);
   } catch (error) {
@@ -33,7 +33,7 @@ const addNewItem = async (req, res, next) => {
       next(new BadRequestError("Invalid value for owner ID"));
       return;
     } else if (error.name === "ValidationError") {
-      next(new BadRequestError("Invalid fields: name, weather, or link"));
+      next(new BadRequestError("Invalid fields: name, weather, or imageUrl"));
       return;
     }
 

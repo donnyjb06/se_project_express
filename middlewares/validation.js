@@ -76,11 +76,11 @@ const validateItemCreation = celebrate({
       .messages(
         getStringValidationMessages("name", { required: true, min: 2, max: 30 })
       ),
-    link: Joi.string()
+    imageUrl: Joi.string()
       .required()
       .custom(validateUrl)
       .messages(
-        getStringValidationMessages("link", { required: true, isUrl: true })
+        getStringValidationMessages("imageUrl", { required: true, isUrl: true })
       ),
     weather: Joi.string().required().valid("hot", "cold", "warm"),
   }),
