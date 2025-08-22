@@ -32,7 +32,8 @@ const addNewItem = async (req, res, next) => {
     if (error.name === "CastError") {
       next(new BadRequestError("Invalid value for owner ID"));
       return;
-    } else if (error.name === "ValidationError") {
+    }
+    if (error.name === "ValidationError") {
       next(new BadRequestError("Invalid fields: name, weather, or imageUrl"));
       return;
     }
@@ -63,7 +64,8 @@ const deleteItem = async (req, res, next) => {
     if (error.name === "CastError") {
       next(new BadRequestError("Invalid value for item ID"));
       return;
-    } else if (error.name === "DocumentNotFoundError") {
+    }
+    if (error.name === "DocumentNotFoundError") {
       next(new NotFoundError("Item could not be found"));
       return;
     }
@@ -97,7 +99,8 @@ const likeItem = async (req, res, next) => {
     if (error.name === "CastError") {
       next(new BadRequestError("Invalid value for item ID"));
       return;
-    } else if (error.name === "DocumentNotFoundError") {
+    }
+    if (error.name === "DocumentNotFoundError") {
       next(new NotFoundError("Item could not be found"));
       return;
     }
@@ -131,7 +134,8 @@ const unlikeItem = async (req, res, next) => {
     if (error.name === "CastError") {
       next(new BadRequestError("Invalid value for item ID"));
       return;
-    } else if (error.name === "DocumentNotFoundError") {
+    }
+    if (error.name === "DocumentNotFoundError") {
       next(new NotFoundError(`Item could not be found`));
       return;
     }

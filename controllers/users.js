@@ -25,7 +25,8 @@ const getCurrentUser = async (req, res, next) => {
     if (error.name === "DocumentNotFoundError") {
       next(new NotFoundError(`User could not be found`));
       return;
-    } else if (error.name === "CastError") {
+    }
+    if (error.name === "CastError") {
       next(new BadRequestError("Invalid value for user ID"));
       return;
     }
@@ -54,7 +55,8 @@ const addNewUser = async (req, res, next) => {
     if (error.name === "ValidationError") {
       next(new BadRequestError("Invalid field/s: name, avatar, or email"));
       return;
-    } else if (error.name === "MongoServerError") {
+    }
+    if (error.name === "MongoServerError") {
       next(new ConflictError("Duplicate email"));
       return;
     }
@@ -103,7 +105,8 @@ const updateUser = async (req, res, next) => {
     if (error.name === "CastError") {
       next(new BadRequestError("Invalid value for user ID"));
       return;
-    } else if (error.name === "DocumentNotFoundError") {
+    }
+    if (error.name === "DocumentNotFoundError") {
       next(new NotFoundError("User could not be found"));
       return;
     }
