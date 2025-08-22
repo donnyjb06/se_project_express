@@ -175,10 +175,26 @@ const validateItemId = celebrate({
   }),
 });
 
+const validateUserUpdate = celebrate({
+  body: Joi.object().keys({
+    name: Joi.string()
+      .min(2)
+      .max(30)
+      .required()
+      .messages(
+        getStringValidationMessages("name", { required: true, min: 2, max: 30 })
+      ),
+    avatar: Joi.string()
+      .custom(validateUrl)
+      .messages(getStringValidationMessages("avatar", { isUrl: true })),
+  }),
+});
+
 module.exports = {
   validateItemCreation,
   validateUserCreation,
   validateUserLogin,
   validateUserId,
   validateItemId,
+  validateUserUpdate,
 };
