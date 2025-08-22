@@ -1,6 +1,7 @@
 const Item = require("../models/clothingItem");
 const { BadRequestError } = require("../utils/errors/BadRequestError");
 const { NotFoundError } = require("../utils/errors/NotFoundError");
+const { ForbiddenError } = require("..utils/errors/ForbiddenError.js");
 
 const getAllItems = async (req, res, next) => {
   try {
@@ -52,7 +53,7 @@ const deleteItem = async (req, res, next) => {
 
     const itemToDelete = await Item.findById(itemId).orFail();
     if (itemToDelete.owner.toString() !== req.user._id) {
-      next(new BadRequestError("Current user does not own clothing item"));
+      next(new ForbiddenError("Current user does not own clothing item"));
       return;
     }
 
