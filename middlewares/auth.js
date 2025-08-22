@@ -7,8 +7,6 @@ const extractToken = (header) => header.split("Bearer ")[1].trim();
 const authenticateUser = (req, res, next) => {
   const { authorization } = req.headers;
   if (!authorization || !authorization.startsWith("Bearer")) {
-    const error = new Error("Missing or invalid header");
-    error.name = "UnauthorizedError";
     next(new UnauthorizedError("Invalid token"))
     return
   }
@@ -20,7 +18,6 @@ const authenticateUser = (req, res, next) => {
     req.user = payload;
     next();
   } catch (error) {
-    error.name = "UnauthorizedError";
     next(new UnauthorizedError("An error has occured when attempting to validate your token"))
   }
 };
