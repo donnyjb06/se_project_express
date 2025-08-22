@@ -1,7 +1,7 @@
 const Item = require("../models/clothingItem");
 const { BadRequestError } = require("../utils/errors/BadRequestError");
 const { NotFoundError } = require("../utils/errors/NotFoundError");
-const { ForbiddenError } = require("..utils/errors/ForbiddenError.js");
+const { ForbiddenError } = require("../utils/errors/ForbiddenError");
 
 const getAllItems = async (req, res, next) => {
   try {
