@@ -2,7 +2,9 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const { errors } = require("celebrate");
+const { errors} = require("celebrate");
+const  helmet = require("helmet");
+const { limiter } = require("./middlewares/limiter");
 const userRouter = require("./routes/users");
 const itemRouter = require("./routes/clothingItems");
 const authRouter = require("./routes/index");
@@ -13,22 +15,24 @@ const { requestLogger, errorLogger } = require("./middlewares/logger");
 const { PORT = 3001 } = process.env;
 
 const app = express();
+
+app.use(limiter);
+app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
 app.use(requestLogger);
 app.use("/users", userRouter);
-app.get('/crash-test', () => {
+app.get("/crash-test", () => {
   setTimeout(() => {
-    throw new Error("Server will crash now")
-  }, 0)
-})
+    throw new Error("Server will crash now");
+  }, 0);
+});
 app.use("/", authRouter);
 app.use("/items", itemRouter);
 app.use((req, res, next) => {
   next(new NotFoundError("Requested resource not found"));
 });
-
 
 app.use(errorLogger);
 app.use(errors());
